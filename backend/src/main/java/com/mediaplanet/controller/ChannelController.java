@@ -47,4 +47,12 @@ public class ChannelController {
         channelService.deleteChannel(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/workers/status")
+    public ResponseEntity<Channel> updateWorkerStatus(
+            @PathVariable Long id,
+            @RequestParam String type,
+            @RequestParam boolean running) {
+        return ResponseEntity.ok(channelService.updateWorkerStatus(id, type, running));
+    }
 }

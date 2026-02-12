@@ -1,5 +1,6 @@
 package com.mediaplanet.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Channel {
 
     @Id
@@ -65,6 +67,15 @@ public class Channel {
 
     @Column(name = "ocr")
     private Boolean ocr = false;
+
+    @Column(name = "ad_worker_running")
+    private Boolean adWorkerRunning = false;
+
+    @Column(name = "news_worker_running")
+    private Boolean newsWorkerRunning = false;
+
+    @Column(name = "ocr_worker_running")
+    private Boolean ocrWorkerRunning = false;
 
     @CreationTimestamp
     @Column(name = "create_date", nullable = false, updatable = false)

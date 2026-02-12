@@ -64,24 +64,30 @@ export class TaskMonitorComponent implements OnInit {
     }
 
     startTask(channel: Channel, taskType: string): void {
-        this.taskService.startTask(channel.id!, taskType).subscribe({
-            next: (exec) => {
-                const key = `${channel.id}-${taskType}`;
-                this.taskStatuses.set(key, exec);
-                this.toastService.success(`${taskType} started for ${channel.channelName}`);
+        this.channelService.updateWorkerStatus(channel.id!, taskType, true).subscribe({
+            next: (updatedChannel) => {
+                // Update the channel in our list
+                const index = this.channels.findIndex(c => c.id === updatedChannel.id);
+                if (index !== -1) {
+                    this.channels[index] = updatedChannel;
+                }
+                this.toastService.success(`${taskType} worker started for ${channel.channelName}`);
             },
-            error: () => this.toastService.error('Failed to start task')
+            error: () => this.toastService.error('Failed to start worker')
         });
     }
 
     stopTask(channel: Channel, taskType: string): void {
-        this.taskService.stopTask(channel.id!, taskType).subscribe({
-            next: (exec) => {
-                const key = `${channel.id}-${taskType}`;
-                this.taskStatuses.set(key, exec);
-                this.toastService.success(`${taskType} stopped for ${channel.channelName}`);
+        this.channelService.updateWorkerStatus(channel.id!, taskType, false).subscribe({
+            next: (updatedChannel) => {
+                // Update the channel in our list
+                const index = this.channels.findIndex(c => c.id === updatedChannel.id);
+                if (index !== -1) {
+                    this.channels[index] = updatedChannel;
+                }
+                this.toastService.success(`${taskType} worker stopped for ${channel.channelName}`);
             },
-            error: () => this.toastService.error('Failed to stop task')
+            error: () => this.toastService.error('Failed to stop worker')
         });
     }
 

@@ -73,6 +73,10 @@
             <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
                 SYSTEM
             </div>
+            <a routerLink="/dashboard/app-config" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-gear"></i>
+                <span *ngIf="!isSidebarCollapsed">App Config</span>
+            </a>
             <a (click)="logout()" class="nav-item-basic text-danger pointer">
                 <i class="bi bi-box-arrow-right"></i>
                 <span *ngIf="!isSidebarCollapsed">Logout</span>

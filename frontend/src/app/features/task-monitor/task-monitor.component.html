@@ -31,18 +31,17 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-semibold">Ad Detection</span>
                                 <span class="badge rounded-pill"
-                                    [class.bg-success]="getTaskStatus(channel.id!, 'AD') === 'RUNNING'"
-                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'AD') === 'STOPPED'"
-                                    [class.bg-danger]="getTaskStatus(channel.id!, 'AD') === 'FAILED'">
-                                    {{ getTaskStatus(channel.id!, 'AD') }}
+                                    [class.bg-success]="channel.adWorkerRunning"
+                                    [class.bg-secondary]="!channel.adWorkerRunning">
+                                    {{ channel.adWorkerRunning ? 'RUNNING' : 'STOPPED' }}
                                 </span>
                             </div>
                             <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="getTaskStatus(channel.id!, 'AD') !== 'RUNNING'"
+                                <button *ngIf="!channel.adWorkerRunning"
                                     (click)="startTask(channel, 'AD')" class="btn btn-primary btn-sm flex-fill">
                                     <i class="bi bi-play-fill me-1"></i> Start
                                 </button>
-                                <button *ngIf="getTaskStatus(channel.id!, 'AD') === 'RUNNING'"
+                                <button *ngIf="channel.adWorkerRunning"
                                     (click)="stopTask(channel, 'AD')" class="btn btn-danger btn-sm flex-fill">
                                     <i class="bi bi-stop-fill me-1"></i> Stop
                                 </button>
@@ -59,18 +58,17 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-semibold">News Detection</span>
                                 <span class="badge rounded-pill"
-                                    [class.bg-success]="getTaskStatus(channel.id!, 'NEWS') === 'RUNNING'"
-                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'NEWS') === 'STOPPED'"
-                                    [class.bg-danger]="getTaskStatus(channel.id!, 'NEWS') === 'FAILED'">
-                                    {{ getTaskStatus(channel.id!, 'NEWS') }}
+                                    [class.bg-success]="channel.newsWorkerRunning"
+                                    [class.bg-secondary]="!channel.newsWorkerRunning">
+                                    {{ channel.newsWorkerRunning ? 'RUNNING' : 'STOPPED' }}
                                 </span>
                             </div>
                             <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="getTaskStatus(channel.id!, 'NEWS') !== 'RUNNING'"
+                                <button *ngIf="!channel.newsWorkerRunning"
                                     (click)="startTask(channel, 'NEWS')" class="btn btn-primary btn-sm flex-fill">
                                     <i class="bi bi-play-fill me-1"></i> Start
                                 </button>
-                                <button *ngIf="getTaskStatus(channel.id!, 'NEWS') === 'RUNNING'"
+                                <button *ngIf="channel.newsWorkerRunning"
                                     (click)="stopTask(channel, 'NEWS')" class="btn btn-danger btn-sm flex-fill">
                                     <i class="bi bi-stop-fill me-1"></i> Stop
                                 </button>
@@ -87,18 +85,17 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-semibold">OCR Detection</span>
                                 <span class="badge rounded-pill"
-                                    [class.bg-success]="getTaskStatus(channel.id!, 'OCR') === 'RUNNING'"
-                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'OCR') === 'STOPPED'"
-                                    [class.bg-danger]="getTaskStatus(channel.id!, 'OCR') === 'FAILED'">
-                                    {{ getTaskStatus(channel.id!, 'OCR') }}
+                                    [class.bg-success]="channel.ocrWorkerRunning"
+                                    [class.bg-secondary]="!channel.ocrWorkerRunning">
+                                    {{ channel.ocrWorkerRunning ? 'RUNNING' : 'STOPPED' }}
                                 </span>
                             </div>
                             <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="getTaskStatus(channel.id!, 'OCR') !== 'RUNNING'"
+                                <button *ngIf="!channel.ocrWorkerRunning"
                                     (click)="startTask(channel, 'OCR')" class="btn btn-primary btn-sm flex-fill">
                                     <i class="bi bi-play-fill me-1"></i> Start
                                 </button>
-                                <button *ngIf="getTaskStatus(channel.id!, 'OCR') === 'RUNNING'"
+                                <button *ngIf="channel.ocrWorkerRunning"
                                     (click)="stopTask(channel, 'OCR')" class="btn btn-danger btn-sm flex-fill">
                                     <i class="bi bi-stop-fill me-1"></i> Stop
                                 </button>

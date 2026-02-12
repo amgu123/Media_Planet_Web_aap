@@ -55,6 +55,10 @@ export const routes: Routes = [
             {
                 path: 'generated-content',
                 loadComponent: () => import('./features/generated-content/content-list/content-list.component').then(m => m.ContentListComponent)
+            },
+            {
+                path: 'app-config',
+                loadComponent: () => import('./features/app-config/app-config.component').then(m => m.AppConfigComponent)
             }
         ]
     },

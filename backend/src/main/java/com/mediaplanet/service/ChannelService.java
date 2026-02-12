@@ -13,6 +13,9 @@ public class ChannelService {
     @Autowired
     private ChannelRepository channelRepository;
 
+    @Autowired
+    private com.mediaplanet.worker.WorkerManager workerManager;
+
     public List<Channel> getAllChannels() {
         return channelRepository.findAll();
     }
@@ -53,5 +56,31 @@ public class ChannelService {
     public void deleteChannel(Long id) {
         Channel channel = getChannelById(id);
         channelRepository.delete(channel);
+    }
+
+    public Channel updateWorkerStatus(Long id, String type, boolean running) {
+        Channel channel = getChannelById(id);
+        switch (type.toUpperCase()) {
+            case "AD":
+                channel.setAdWorkerRunning(running);
+                break;
+            case "NEWS":
+                channel.setNewsWorkerRunning(running);
+                break;
+            case "OCR":
+                channel.setOcrWorkerRunning(running);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid task type: " + type);
+        }
+        Channel savedChannel = channelRepository.save(channel);
+
+        if (running) {
+            workerManager.startWorker(savedChannel, type.toUpperCase());
+        } else {
+            workerManager.stopWorker(id, type.toUpperCase());
+        }
+
+        return savedChannel;
     }
 }

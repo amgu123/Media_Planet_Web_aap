@@ -33,4 +33,8 @@ export class ChannelService {
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
+    updateWorkerStatus(id: number, type: string, running: boolean): Observable<Channel> {
+        return this.http.post<Channel>(`${this.apiUrl}/${id}/workers/status?type=${type}&running=${running}`, {});
+    }
 }

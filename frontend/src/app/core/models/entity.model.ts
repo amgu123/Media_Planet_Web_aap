@@ -61,6 +61,9 @@ export interface Channel {
     adDetection?: boolean;
     newsDetection?: boolean;
     ocr?: boolean;
+    adWorkerRunning?: boolean;
+    newsWorkerRunning?: boolean;
+    ocrWorkerRunning?: boolean;
     createDate?: string;
     updateDate?: string;
 }
@@ -83,4 +86,13 @@ export interface GeneratedContent {
     content: string;
     imageUrl?: string;
     timestamp: string;
+}
+
+export interface AppConfig {
+    id?: number;
+    configKey: string;
+    configValue: string;
+    description?: string;
+    createDate?: string;
+    updateDate?: string;
 }

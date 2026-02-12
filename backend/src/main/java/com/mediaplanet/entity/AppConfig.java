@@ -8,36 +8,28 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "app_configs")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class Task {
+public class AppConfig {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id", nullable = false)
-    private Channel channel;
+    @Column(name = "config_key", nullable = false, unique = true, length = 100)
+    private String configKey;
 
-    @Column(name = "task_type", length = 20)
-    private String taskType; // AD, NEWS, OCR
+    @Column(name = "config_value", columnDefinition = "TEXT")
+    private String configValue;
 
-    @Column(name = "status", nullable = false, length = 20)
-    private String status; // PENDING, RUNNING, COMPLETED, FAILED
-
-    @Column(name = "data_date")
-    private LocalDate dataDate;
-
-    @Column(name = "date_time")
-    private String dateTime;
+    @Column(name = "description", length = 500)
+    private String description;
 
     @CreationTimestamp
     @Column(name = "create_date", nullable = false, updatable = false)

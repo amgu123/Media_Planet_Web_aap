@@ -3,8 +3,8 @@ package com.mediaplanet.worker;
 import com.mediaplanet.entity.Channel;
 import com.mediaplanet.repository.ChannelRepository;
 import com.mediaplanet.repository.TaskRepository;
+import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -30,63 +30,83 @@ public class WorkerManager {
     private TaskExecutionService taskExecutionService;
 
     @Autowired
+    private AppConfigService appConfigService;
+
+    @Autowired
+    private org.springframework.web.client.RestTemplate restTemplate;
+
+    @Autowired
     private ThreadPoolTaskScheduler taskScheduler;
 
-    private final Map<Long, ScheduledFuture<?>> activeWorkers = new HashMap<>();
-
-    /**
-     * Periodically syncs workers with active channels.
-     * Runs every 30 seconds to pick up new channels or stop workers for inactive
-     * ones.
-     */
-    @PostConstruct
-    public void init() {
-        // Run sync initially and then every 30 seconds
-        taskScheduler.scheduleWithFixedDelay(this::syncWorkers, Duration.ofSeconds(30));
-    }
+    private final Map<String, ScheduledFuture<?>> activeWorkers = new HashMap<>();
 
     public void syncWorkers() {
         log.debug("Syncing channel workers...");
         List<Channel> channels = channelRepository.findAll();
 
         for (Channel channel : channels) {
-            boolean isActive = Boolean.TRUE.equals(channel.getStatus());
-            Long channelId = channel.getId();
 
-            if (isActive && !activeWorkers.containsKey(channelId)) {
-                startWorker(channel);
-            } else if (!isActive && activeWorkers.containsKey(channelId)) {
-                stopWorker(channelId);
-            }
+            syncWorkerType(channel, "AD", channel.getAdWorkerRunning());
+            syncWorkerType(channel, "NEWS", channel.getNewsWorkerRunning());
+            syncWorkerType(channel, "OCR", channel.getOcrWorkerRunning());
         }
 
-        // Clean up workers for channels that might have been deleted from DB
-        activeWorkers.keySet().removeIf(id -> {
+        // Clean up workers for channels that might have been deleted from DB or are no
+        // longer in the list
+        activeWorkers.keySet().removeIf(key -> {
+            String[] parts = key.split(":");
+            Long id = Long.parseLong(parts[0]);
             boolean exists = channels.stream().anyMatch(c -> c.getId().equals(id));
             if (!exists) {
-                log.info("Stopping worker for deleted channel ID: {}", id);
+                log.info("Stopping worker for deleted channel ID: {} key: {}", id, key);
+                ScheduledFuture<?> future = activeWorkers.get(key);
+                if (future != null)
+                    future.cancel(false);
                 return true;
             }
             return false;
         });
     }
 
-    private void startWorker(Channel channel) {
-        log.info("Starting worker for channel: {}", channel.getChannelName());
+    private void syncWorkerType(Channel channel, String type, Boolean shouldBeRunning) {
+        String key = channel.getId() + ":" + type;
+        boolean isRunning = activeWorkers.containsKey(key);
+
+        if (Boolean.TRUE.equals(shouldBeRunning) && !isRunning) {
+            startWorker(channel, type);
+        } else if (!Boolean.TRUE.equals(shouldBeRunning) && isRunning) {
+            stopWorker(channel.getId(), type);
+        }
+    }
+
+    public void startWorker(Channel channel, String taskType) {
+        String key = channel.getId() + ":" + taskType;
+        if (activeWorkers.containsKey(key)) {
+            log.warn("Worker already running for channel: {} type: {}", channel.getChannelName(), taskType);
+            return;
+        }
+
+        log.info("Starting worker for channel: {} type: {}", channel.getChannelName(), taskType);
+        String languageName = (channel.getLanguage() != null) ? channel.getLanguage().getLanguageName() : "unknown";
+
         TaskWorker worker = new TaskWorker(
                 channel.getId(),
                 channel.getChannelName(),
+                languageName,
+                taskType,
                 taskRepository,
-                taskExecutionService);
+                taskExecutionService,
+                appConfigService,
+                restTemplate);
 
-        // Schedule the worker to run every 10 seconds (fixed delay)
         ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(worker, Duration.ofSeconds(10));
-        activeWorkers.put(channel.getId(), future);
+        activeWorkers.put(key, future);
     }
 
-    private void stopWorker(Long channelId) {
-        log.info("Stopping worker for channel ID: {}", channelId);
-        ScheduledFuture<?> future = activeWorkers.remove(channelId);
+    public void stopWorker(Long channelId, String taskType) {
+        String key = channelId + ":" + taskType;
+        log.info("Stopping worker for channel ID: {} type: {}", channelId, taskType);
+        ScheduledFuture<?> future = activeWorkers.remove(key);
         if (future != null) {
             future.cancel(false);
         }

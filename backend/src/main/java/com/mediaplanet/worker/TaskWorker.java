@@ -1,13 +1,18 @@
 package com.mediaplanet.worker;
 
 import com.mediaplanet.entity.Task;
-import com.mediaplanet.entity.TaskExecution;
 import com.mediaplanet.repository.TaskRepository;
+import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -15,22 +20,30 @@ public class TaskWorker implements Runnable {
 
     private final Long channelId;
     private final String channelName;
+    private final String languageName;
+    private final String taskType;
     private final TaskRepository taskRepository;
     private final TaskExecutionService taskExecutionService;
+    private final AppConfigService appConfigService;
+    private final RestTemplate restTemplate;
 
     @Override
     public void run() {
         try {
             processChannelTasks();
         } catch (Exception e) {
-            log.error("Fatal error in worker for channel {}: {}", channelName, e.getMessage());
+            log.error("Fatal error in worker for channel {} type {}: {}", channelName, taskType, e.getMessage());
         }
     }
 
     private void processChannelTasks() {
-        List<Task> pendingTasks = taskRepository.findByChannelIdAndStatus(channelId, "PENDING");
+        log.info("Channel {}: Processing tasks of type {}", channelName, taskType);
+        List<Task> pendingTasks = taskRepository.findByChannelIdAndStatusAndTaskType(channelId, "PENDING", taskType);
 
         if (pendingTasks.isEmpty()) {
+            log.info("No task found -------------------- Channel {}: Processing tasks of type {}", channelName,
+                    taskType);
+
             return;
         }
 
@@ -47,7 +60,7 @@ public class TaskWorker implements Runnable {
         }
     }
 
-    private void processSingleTask(Task task) throws InterruptedException {
+    private void processSingleTask(Task task) {
         log.info("Channel {}: Processing task ID {} type {}", channelName, task.getId(), task.getTaskType());
 
         // 1. Update Task status to RUNNING
@@ -57,10 +70,9 @@ public class TaskWorker implements Runnable {
         // 2. Update/Create TaskExecution entry
         taskExecutionService.startTask(channelId, task.getTaskType());
 
-        // 3. Call external API (Placeholder)
+        // 3. Call external API
         try {
-            // Simulating API call
-            Thread.sleep(2000);
+            makeApiCall(task);
 
             log.info("Channel {}: API call successful for task ID {}", channelName, task.getId());
 
@@ -76,6 +88,36 @@ public class TaskWorker implements Runnable {
             task.setStatus("FAILED");
             taskRepository.save(task);
             taskExecutionService.stopTask(channelId, task.getTaskType());
+        }
+    }
+
+    private void makeApiCall(Task task) {
+        String apiUrl = appConfigService.getByKey("ENG_LANG_API_HOST")
+                .map(config -> config.getConfigValue())
+                .orElseThrow(() -> new RuntimeException("DETECTION_API_URL not configured in app_configs"));
+
+        // Format dates and times
+        String formattedDate = task.getDataDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        // Remove colons if present
+        String formattedTime = task.getDateTime().replace(":", "");
+
+        // Build Payload
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("channel", Collections.singletonList(channelName));
+        payload.put("dates", Collections.singletonList(formattedDate));
+        payload.put("times", Collections.singletonList(formattedTime));
+        payload.put("language", languageName != null ? languageName.toLowerCase() : "unknown");
+
+        log.info("Channel {}: Sending request to {}: {}", channelName, apiUrl, payload);
+
+        // API Call
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = restTemplate.postForObject(apiUrl, payload, Map.class);
+
+        log.info("Channel {}: Received response: {}", channelName, response);
+
+        if (response == null || !"batch_complete".equals(response.get("status"))) {
+            throw new RuntimeException("API response status was not batch_complete: " + response);
         }
     }
 }
