@@ -1,0 +1,32 @@
+.hover-elevate {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.8em;
+}
+
+.extra-small {
+    font-size: 0.75rem;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.log-container {
+    height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #121212;
+    line-height: 1.5;
+}
+
+.animate__animated {
+    --animate-duration: 0.5s;
+}

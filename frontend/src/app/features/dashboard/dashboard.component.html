@@ -1,0 +1,108 @@
+<div class="dashboard-wrapper">
+    <!-- Professional Dark Sidebar -->
+    <aside class="sidebar-basic" [class.collapsed]="isSidebarCollapsed">
+        <div class="sidebar-header d-flex align-items-center justify-content-between">
+            <h4 class="logo-text mb-0" *ngIf="!isSidebarCollapsed">MEDIA PLANET</h4>
+            <button class="btn btn-link text-white p-0" (click)="toggleSidebar()">
+                <i class="bi" [class.bi-list]="isSidebarCollapsed" [class.bi-chevron-left]="!isSidebarCollapsed"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav mt-3">
+            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                class="nav-item-basic">
+                <i class="bi bi-speedometer2"></i>
+                <span *ngIf="!isSidebarCollapsed">Overview</span>
+            </a>
+
+            <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
+                DETECTION RESULTS
+            </div>
+            <a routerLink="/dashboard/generated-content" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-card-text"></i>
+                <span *ngIf="!isSidebarCollapsed">Detection Results</span>
+            </a>
+
+            <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
+                TASK MONITOR
+            </div>
+            <a routerLink="/dashboard/task-monitor" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-display"></i>
+                <span *ngIf="!isSidebarCollapsed">Task Monitor</span>
+            </a>
+
+            <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
+                CHANNELS
+            </div>
+            <a routerLink="/dashboard/channels" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                class="nav-item-basic">
+                <i class="bi bi-broadcast"></i>
+                <span *ngIf="!isSidebarCollapsed">View Channels</span>
+            </a>
+            <a routerLink="/dashboard/channels/create" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-plus-circle"></i>
+                <span *ngIf="!isSidebarCollapsed">Create Channel</span>
+            </a>
+            <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
+                MASTER DATA
+            </div>
+
+            <a routerLink="/dashboard/languages" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-translate"></i>
+                <span *ngIf="!isSidebarCollapsed">Languages</span>
+            </a>
+            <a routerLink="/dashboard/markets" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-globe"></i>
+                <span *ngIf="!isSidebarCollapsed">Markets</span>
+            </a>
+            <a routerLink="/dashboard/genres" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-tag"></i>
+                <span *ngIf="!isSidebarCollapsed">Genres</span>
+            </a>
+            <a routerLink="/dashboard/job-machines" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-cpu"></i>
+                <span *ngIf="!isSidebarCollapsed">Job Machines</span>
+            </a>
+            <a routerLink="/dashboard/resource-paths" routerLinkActive="active" class="nav-item-basic">
+                <i class="bi bi-folder2-open"></i>
+                <span *ngIf="!isSidebarCollapsed">Resource Paths</span>
+            </a>
+
+
+
+            <div class="nav-section-title mt-4 mb-2 px-3 small text-muted" *ngIf="!isSidebarCollapsed">
+                SYSTEM
+            </div>
+            <a (click)="logout()" class="nav-item-basic text-danger pointer">
+                <i class="bi bi-box-arrow-right"></i>
+                <span *ngIf="!isSidebarCollapsed">Logout</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-container" [class.sidebar-collapsed]="isSidebarCollapsed">
+        <!-- Clean Header -->
+        <header class="header-basic d-flex align-items-center justify-content-between px-4">
+            <div class="search-box-basic">
+                <i class="bi bi-search text-muted me-2"></i>
+                <input type="text" placeholder="Quick search..." class="border-0 bg-transparent py-2">
+            </div>
+
+            <div class="user-profile d-flex align-items-center" *ngIf="currentUser$ | async as user">
+                <div class="text-end me-3 d-none d-md-block">
+                    <div class="fw-bold small">{{ user.username }}</div>
+                    <div class="text-muted smaller" style="font-size: 0.75rem;">{{ user.role }}</div>
+                </div>
+                <div class="avatar-basic">
+                    {{ userInitial$ | async }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Screen -->
+        <div class="content-viewport p-4">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

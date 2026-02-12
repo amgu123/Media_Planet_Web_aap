@@ -1,0 +1,97 @@
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1 fw-bold">Market Management</h3>
+            <p class="text-muted small">Manage global regions and market clusters</p>
+        </div>
+        <button class="btn-primary-basic shadow-sm" (click)="openAddModal()">
+            <i class="bi bi-plus-lg me-2"></i> Add Market
+        </button>
+    </div>
+
+    <div class="basic-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-basic mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Logo</th>
+                        <th>Market Name</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let market of markets" class="table-active-row">
+                        <td class="ps-4">#{{ market.id }}</td>
+                        <td>
+                            <img [src]="market.logo" [alt]="market.marketName" class="rounded border" width="32"
+                                height="32" onerror="this.src='https://placehold.co/32x32/eee/999?text=M'">
+                        </td>
+                        <td class="fw-bold">{{ market.marketName }}</td>
+                        <td>
+                            <span class="badge-basic" [class.badge-success]="market.status"
+                                [class.badge-danger]="!market.status">
+                                {{ market.status ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditModal(market)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" (click)="deleteMarket(market.id!)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="markets.length === 0 && !loading">
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No markets found.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Standard Modal -->
+    <div class="modal fade show d-block" *ngIf="showModal" tabindex="-1">
+        <div class="modal-backdrop fade show" (click)="closeModal()"></div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold">{{ isEdit ? 'Edit Market' : 'New Market' }}</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form [formGroup]="marketForm" (ngSubmit)="saveMarket()">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Market Name</label>
+                            <input type="text" formControlName="marketName" class="form-control-basic"
+                                placeholder="e.g. USA">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Logo URL</label>
+                            <input type="text" formControlName="logo" class="form-control-basic"
+                                placeholder="https://example.com/logo.png">
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" formControlName="status"
+                                    id="marketStatus">
+                                <label class="form-check-label small" for="marketStatus">Enable Market</label>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light me-2" (click)="closeModal()">Cancel</button>
+                            <button type="submit" [disabled]="marketForm.invalid" class="btn-primary-basic px-4">
+                                {{ isEdit ? 'Update' : 'Create' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

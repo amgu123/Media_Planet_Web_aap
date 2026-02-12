@@ -1,0 +1,116 @@
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1 fw-bold">Resource Path Management</h3>
+            <p class="text-muted small">Configure file storage and resource mapping</p>
+        </div>
+        <button class="btn-primary-basic shadow-sm" (click)="openAddModal()">
+            <i class="bi bi-plus-lg me-2"></i> Add Path
+        </button>
+    </div>
+
+    <div class="basic-card p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-basic mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Job Machine</th>
+                        <th>Value / Path</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let path of resourcePaths" class="table-active-row">
+                        <td class="ps-4">#{{ path.id }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border small fw-normal">
+                                {{ path.jobMachine.machineName }}
+                            </span>
+                        </td>
+                        <td><code class="text-primary">{{ path.value }}</code></td>
+                        <td class="small">{{ path.description || '-' }}</td>
+                        <td>
+                            <span class="badge" [class.bg-info]="path.priority === 'Primary'"
+                                [class.bg-secondary]="path.priority === 'Secondary'">
+                                {{ path.priority || 'Primary' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-basic" [class.badge-success]="path.status"
+                                [class.badge-danger]="!path.status">
+                                {{ path.status ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditModal(path)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" (click)="deleteResourcePath(path.id!)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Standard Modal -->
+    <div class="modal fade show d-block" *ngIf="showModal" tabindex="-1">
+        <div class="modal-backdrop fade show" (click)="closeModal()"></div>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold">{{ isEdit ? 'Edit Resource Path' : 'New Resource Path' }}</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form [formGroup]="resourcePathForm" (ngSubmit)="saveResourcePath()">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Select Job Machine</label>
+                            <select formControlName="jobMachineId" class="form-control-basic">
+                                <option value="" disabled>Choose a machine...</option>
+                                <option *ngFor="let machine of jobMachines" [value]="machine.id">{{ machine.machineName
+                                    }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Value / Resource Path</label>
+                            <input type="text" formControlName="value" class="form-control-basic"
+                                placeholder="e.g. /mnt/storage/renders/">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Description</label>
+                            <textarea formControlName="description" class="form-control-basic" rows="3"
+                                placeholder="Path usage notes..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Priority</label>
+                            <select formControlName="priority" class="form-control-basic">
+                                <option value="Primary">Primary</option>
+                                <option value="Secondary">Secondary</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" formControlName="status"
+                                    id="pathStatus">
+                                <label class="form-check-label small" for="pathStatus">Enable Path</label>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light me-2" (click)="closeModal()">Cancel</button>
+                            <button type="submit" [disabled]="resourcePathForm.invalid" class="btn-primary-basic px-4">
+                                {{ isEdit ? 'Update' : 'Create' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

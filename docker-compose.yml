@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: media-planet-backend
+    restart: always
+    ports:
+      - "9090:9090"
+    # Remote database configuration is taken from application.yml
+
+  frontend:
+    build: ./frontend
+    container_name: media-planet-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

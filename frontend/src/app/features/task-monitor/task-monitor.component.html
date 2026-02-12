@@ -1,0 +1,146 @@
+<div class="row mb-4 animate__animated animate__fadeIn">
+    <div class="col">
+        <h4 class="fw-bold mb-1">Service Monitor</h4>
+        <p class="text-muted">Manage and monitor background detection services for each channel.</p>
+    </div>
+</div>
+
+<div class="row g-4 animate__animated animate__fadeInUp">
+    <div class="col-12" *ngFor="let channel of channels">
+        <div class="card border-0 shadow-sm hover-elevate">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="avatar-sm bg-light rounded-circle me-3 d-flex align-items-center justify-content-center"
+                        style="width: 50px; height: 50px; overflow: hidden; border: 1px solid #eee;">
+                        <img *ngIf="channel.logo" [src]="channel.logo" alt="logo"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                        <span *ngIf="!channel.logo" class="fw-bold text-primary">{{ channel.channelName | slice:0:1 |
+                            uppercase }}</span>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold">{{ channel.channelName }}</h5>
+                        <p class="text-muted small mb-0">ID: #{{ channel.id }} | {{ channel.description || 'No
+                            description' }}</p>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Ad Detection Service -->
+                    <div class="col-md-4" *ngIf="channel.adDetection">
+                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-semibold">Ad Detection</span>
+                                <span class="badge rounded-pill"
+                                    [class.bg-success]="getTaskStatus(channel.id!, 'AD') === 'RUNNING'"
+                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'AD') === 'STOPPED'"
+                                    [class.bg-danger]="getTaskStatus(channel.id!, 'AD') === 'FAILED'">
+                                    {{ getTaskStatus(channel.id!, 'AD') }}
+                                </span>
+                            </div>
+                            <div class="mt-auto d-flex gap-2">
+                                <button *ngIf="getTaskStatus(channel.id!, 'AD') !== 'RUNNING'"
+                                    (click)="startTask(channel, 'AD')" class="btn btn-primary btn-sm flex-fill">
+                                    <i class="bi bi-play-fill me-1"></i> Start
+                                </button>
+                                <button *ngIf="getTaskStatus(channel.id!, 'AD') === 'RUNNING'"
+                                    (click)="stopTask(channel, 'AD')" class="btn btn-danger btn-sm flex-fill">
+                                    <i class="bi bi-stop-fill me-1"></i> Stop
+                                </button>
+                                <button (click)="viewLogs(channel, 'AD')" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-terminal me-1"></i> Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- News Detection Service -->
+                    <div class="col-md-4" *ngIf="channel.newsDetection">
+                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-semibold">News Detection</span>
+                                <span class="badge rounded-pill"
+                                    [class.bg-success]="getTaskStatus(channel.id!, 'NEWS') === 'RUNNING'"
+                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'NEWS') === 'STOPPED'"
+                                    [class.bg-danger]="getTaskStatus(channel.id!, 'NEWS') === 'FAILED'">
+                                    {{ getTaskStatus(channel.id!, 'NEWS') }}
+                                </span>
+                            </div>
+                            <div class="mt-auto d-flex gap-2">
+                                <button *ngIf="getTaskStatus(channel.id!, 'NEWS') !== 'RUNNING'"
+                                    (click)="startTask(channel, 'NEWS')" class="btn btn-primary btn-sm flex-fill">
+                                    <i class="bi bi-play-fill me-1"></i> Start
+                                </button>
+                                <button *ngIf="getTaskStatus(channel.id!, 'NEWS') === 'RUNNING'"
+                                    (click)="stopTask(channel, 'NEWS')" class="btn btn-danger btn-sm flex-fill">
+                                    <i class="bi bi-stop-fill me-1"></i> Stop
+                                </button>
+                                <button (click)="viewLogs(channel, 'NEWS')" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-terminal me-1"></i> Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Service -->
+                    <div class="col-md-4" *ngIf="channel.ocr">
+                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-semibold">OCR Detection</span>
+                                <span class="badge rounded-pill"
+                                    [class.bg-success]="getTaskStatus(channel.id!, 'OCR') === 'RUNNING'"
+                                    [class.bg-secondary]="getTaskStatus(channel.id!, 'OCR') === 'STOPPED'"
+                                    [class.bg-danger]="getTaskStatus(channel.id!, 'OCR') === 'FAILED'">
+                                    {{ getTaskStatus(channel.id!, 'OCR') }}
+                                </span>
+                            </div>
+                            <div class="mt-auto d-flex gap-2">
+                                <button *ngIf="getTaskStatus(channel.id!, 'OCR') !== 'RUNNING'"
+                                    (click)="startTask(channel, 'OCR')" class="btn btn-primary btn-sm flex-fill">
+                                    <i class="bi bi-play-fill me-1"></i> Start
+                                </button>
+                                <button *ngIf="getTaskStatus(channel.id!, 'OCR') === 'RUNNING'"
+                                    (click)="stopTask(channel, 'OCR')" class="btn btn-danger btn-sm flex-fill">
+                                    <i class="bi bi-stop-fill me-1"></i> Stop
+                                </button>
+                                <button (click)="viewLogs(channel, 'OCR')" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-terminal me-1"></i> Logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Services Configured -->
+                    <div class="col-12" *ngIf="!channel.adDetection && !channel.newsDetection && !channel.ocr">
+                        <div class="p-4 bg-light rounded border border-dashed text-center">
+                            <span class="text-muted small">No detection services enabled for this channel. <a
+                                    [routerLink]="['/dashboard/channels/edit', channel.id]">Enable them in
+                                    settings.</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Modal -->
+<div class="modal-backdrop fade show" *ngIf="showLogModal"></div>
+<div class="modal fade show d-block" *ngIf="showLogModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-terminal me-2"></i> {{ selectedTaskInfo?.taskType }} Logs - {{
+                    selectedTaskInfo?.channelName }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeLogModal()"></button>
+            </div>
+            <div class="modal-body p-0">
+                <pre class="m-0 p-4 log-container text-success small">{{ logs }}</pre>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-outline-light btn-sm" (click)="closeLogModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

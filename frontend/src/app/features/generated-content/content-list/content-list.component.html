@@ -1,0 +1,123 @@
+<div class="row mb-4 animate__animated animate__fadeIn">
+    <div class="col">
+        <h4 class="fw-bold mb-1">Generated Content</h4>
+        <p class="text-muted">View and filter detection results from all background services.</p>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="card border-0 shadow-sm mb-4 animate__animated animate__fadeInDown">
+    <div class="card-body p-4">
+        <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Channel</label>
+                <select formControlName="channelId" class="form-select border-light-subtle">
+                    <option value="">All Channels</option>
+                    <option *ngFor="let channel of channels" [value]="channel.id">{{ channel.channelName }}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Start Date</label>
+                <input type="date" formControlName="startDate" class="form-select border-light-subtle">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">End Date</label>
+                <input type="date" formControlName="endDate" class="form-select border-light-subtle">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Start Time</label>
+                <input type="time" formControlName="startTime" class="form-select border-light-subtle">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">End Time</label>
+                <input type="time" formControlName="endTime" class="form-select border-light-subtle">
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-light px-4" (click)="resetFilters()">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-funnel me-2"></i> Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Content List -->
+<div class="row g-4 animate__animated animate__fadeInUp mb-5">
+    <div class="col-12" *ngIf="loading">
+        <div class="text-center p-5 card border-0 shadow-sm mb-4 animate__animated animate__fadeInDown">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Fetching detection results...</p>
+        </div>
+    </div>
+
+    <div class="col-12" *ngIf="!loading && contents.length === 0">
+        <div class="text-center p-5 bg-white rounded shadow-sm">
+            <i class="bi bi-search display-1 text-light-subtle"></i>
+            <h5 class="mt-3 fw-bold">No results found</h5>
+            <p class="text-muted">Try adjusting your filters or enabling services.</p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4" *ngFor="let item of contents">
+        <div class="card border-0 shadow-sm h-100 hover-elevate">
+            <div
+                class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3 px-3">
+                <span class="badge rounded-pill" [class.bg-primary-subtle]="item.taskType === 'AD'"
+                    [class.text-primary]="item.taskType === 'AD'" [class.bg-warning-subtle]="item.taskType === 'NEWS'"
+                    [class.text-warning]="item.taskType === 'NEWS'" [class.bg-info-subtle]="item.taskType === 'OCR'"
+                    [class.text-info]="item.taskType === 'OCR'">
+                    {{ item.taskType }}
+                </span>
+                <small class="text-muted">{{ item.timestamp | date:'short' }}</small>
+            </div>
+            <div class="card-body px-3">
+                <div class="d-flex align-items-center mb-3">
+                    <img *ngIf="item.channel.logo" [src]="item.channel.logo" class="rounded-circle me-2"
+                        style="width: 24px; height: 24px; object-fit: cover;">
+                    <span class="fw-bold small">{{ item.channel.channelName }}</span>
+                    <span class="mx-2 text-muted small">|</span>
+                    <span class="text-muted small">{{ item.channel.language?.languageName }}</span>
+                </div>
+                <div class="p-3 bg-light rounded small content-box">
+                    {{ item.content }}
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3 px-3" *ngIf="item.imageUrl">
+                <button class="btn btn-outline-primary btn-sm w-100">
+                    <i class="bi bi-image me-1"></i> View Screenshot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination Footer -->
+<div class="row mb-5" *ngIf="totalPages > 1">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+            Showing <strong>{{ currentPage * pageSize + 1 }}</strong> - <strong>{{ (currentPage + 1) * pageSize >
+                totalElements ? totalElements : (currentPage + 1) * pageSize }}</strong> of <strong>{{ totalElements
+                }}</strong> results
+        </div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 0">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage - 1)">Previous</a>
+                </li>
+                <li class="page-item" *ngFor="let p of [].constructor(totalPages); let i = index"
+                    [class.active]="i === currentPage">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(i)">{{ i + 1 }}</a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange(currentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

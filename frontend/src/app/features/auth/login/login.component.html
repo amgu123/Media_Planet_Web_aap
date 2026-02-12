@@ -1,0 +1,35 @@
+<div class="login-page d-flex align-items-center justify-content-center">
+    <div class="basic-card login-card fade-in">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary mb-1">Media Planet</h2>
+            <p class="text-muted small">Sign in to your account</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Username</label>
+                <input type="text" formControlName="username" class="form-control-basic" placeholder="Enter username">
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold">Password</label>
+                <input type="password" formControlName="password" class="form-control-basic"
+                    placeholder="Enter password">
+            </div>
+
+            <div *ngIf="error" class="alert alert-danger py-2 small mb-4">
+                {{ error }}
+            </div>
+
+            <button type="submit" [disabled]="loginForm.invalid || loading"
+                class="btn-primary-basic w-100 fw-bold py-2">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ loading ? 'Signing in...' : 'Sign In' }}
+            </button>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center">
+            <p class="small text-muted mb-0">Contact administrator for account access.</p>
+        </div>
+    </div>
+</div>

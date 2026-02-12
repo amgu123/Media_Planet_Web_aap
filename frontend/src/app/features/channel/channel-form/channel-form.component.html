@@ -1,0 +1,209 @@
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+                <a routerLink="/dashboard/channels" class="btn btn-link text-muted p-0 me-3">
+                    <i class="bi bi-arrow-left-short fs-3"></i>
+                </a>
+                <div>
+                    <h5 class="mb-0 fw-bold">{{ isEdit ? 'Edit Channel' : 'Create New Channel' }}</h5>
+                    <p class="text-muted small mb-0">{{ isEdit ? 'Update existing channel details' : 'Add a new
+                        distribution channel to the system' }}</p>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div *ngIf="loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <form [formGroup]="channelForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+                    <div class="row g-4">
+                        <!-- Channel Name -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Channel Name</label>
+                            <input type="text" formControlName="channelName" class="form-control"
+                                placeholder="e.g. YouTube, Netflix"
+                                [class.is-invalid]="channelForm.get('channelName')?.touched && channelForm.get('channelName')?.invalid">
+                            <div class="invalid-feedback">Channel name is required</div>
+                        </div>
+
+                        <!-- Language -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Language</label>
+                            <select formControlName="language" class="form-select"
+                                [class.is-invalid]="channelForm.get('language')?.touched && channelForm.get('language')?.invalid">
+                                <option [ngValue]="null">Select Language</option>
+                                <option *ngFor="let lang of languages" [ngValue]="lang.id">{{ lang.languageName }}
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">Language is required</div>
+                        </div>
+
+                        <!-- Market -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Market</label>
+                            <select formControlName="market" class="form-select"
+                                [class.is-invalid]="channelForm.get('market')?.touched && channelForm.get('market')?.invalid">
+                                <option [ngValue]="null">Select Market</option>
+                                <option *ngFor="let m of markets" [ngValue]="m.id">{{ m.marketName }}</option>
+                            </select>
+                            <div class="invalid-feedback">Market is required</div>
+                        </div>
+
+                        <!-- Genre -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Genre</label>
+                            <select formControlName="genre" class="form-select"
+                                [class.is-invalid]="channelForm.get('genre')?.touched && channelForm.get('genre')?.invalid">
+                                <option [ngValue]="null">Select Genre</option>
+                                <option *ngFor="let g of genres" [ngValue]="g.id">{{ g.genreName }}</option>
+                            </select>
+                            <div class="invalid-feedback">Genre is required</div>
+                        </div>
+
+                        <!-- Job Machine -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Job Machine</label>
+                            <select formControlName="jobMachine" class="form-select"
+                                [class.is-invalid]="channelForm.get('jobMachine')?.touched && channelForm.get('jobMachine')?.invalid">
+                                <option [ngValue]="null">Select Job Machine</option>
+                                <option *ngFor="let jm of jobMachines" [ngValue]="jm.id">{{ jm.machineName }}</option>
+                            </select>
+                            <div class="invalid-feedback">Job Machine is required</div>
+                        </div>
+
+                        <!-- Primary Path -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Primary Path</label>
+                            <select formControlName="primaryPath" class="form-select">
+                                <option [ngValue]="null">Select Primary Path</option>
+                                <option *ngFor="let path of resourcePaths" [ngValue]="path.id">{{ path.value }} ({{
+                                    path.description }})</option>
+                            </select>
+                            <p class="text-muted extra-small mt-1" *ngIf="!channelForm.get('jobMachine')?.value">Please
+                                select a Job Machine first</p>
+                        </div>
+
+                        <!-- Secondary Path -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Secondary Path</label>
+                            <select formControlName="secondaryPath" class="form-select">
+                                <option [ngValue]="null">Select Secondary Path</option>
+                                <option *ngFor="let path of resourcePaths" [ngValue]="path.id">{{ path.value }} ({{
+                                    path.description }})</option>
+                            </select>
+                        </div>
+
+                        <!-- Logo Upload -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Channel Logo</label>
+                            <div class="d-flex align-items-start gap-4">
+                                <div class="upload-preview rounded border d-flex align-items-center justify-content-center bg-light"
+                                    style="width: 120px; height: 120px; overflow: hidden;">
+                                    <img *ngIf="logoPreview" [src]="logoPreview" class="img-fluid"
+                                        style="max-height: 100%;">
+                                    <i *ngIf="!logoPreview" class="bi bi-image text-muted fs-1"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input type="file" class="form-control" (change)="onFileSelected($event)"
+                                        accept="image/*">
+                                    <p class="text-muted small mt-2 mb-0">Recommended size: 200x200px. PNG or JPG.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea formControlName="description" class="form-control" rows="3"
+                                placeholder="Tell us about this channel..."></textarea>
+                        </div>
+
+                        <!-- Detection Options -->
+                        <div class="col-12 mt-4">
+                            <h6 class="fw-bold mb-3">Feature Detection Options</h6>
+                            <div class="row g-3">
+                                <!-- Ad Detection -->
+                                <div class="col-md-4">
+                                    <label class="form-label d-block fw-semibold mb-2">Ad Detection</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="true"
+                                                formControlName="adDetection" id="adDetYes">
+                                            <label class="form-check-label" for="adDetYes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="false"
+                                                formControlName="adDetection" id="adDetNo">
+                                            <label class="form-check-label" for="adDetNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- News Detection -->
+                                <div class="col-md-4">
+                                    <label class="form-label d-block fw-semibold mb-2">News Detection</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="true"
+                                                formControlName="newsDetection" id="newsDetYes">
+                                            <label class="form-check-label" for="newsDetYes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="false"
+                                                formControlName="newsDetection" id="newsDetNo">
+                                            <label class="form-check-label" for="newsDetNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- OCR -->
+                                <div class="col-md-4">
+                                    <label class="form-label d-block fw-semibold mb-2">OCR</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="true"
+                                                formControlName="ocr" id="ocrYes">
+                                            <label class="form-check-label" for="ocrYes">Yes</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" [value]="false"
+                                                formControlName="ocr" id="ocrNo">
+                                            <label class="form-check-label" for="ocrNo">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Toggle -->
+                        <div class="col-12 mt-4 border-top pt-4">
+                            <div class="form-check form-switch p-0 d-flex align-items-center gap-3">
+                                <label class="form-check-label fw-semibold mb-0" for="channelStatus">Active
+                                    Status</label>
+                                <input class="form-check-input ms-0" type="checkbox" role="switch" id="channelStatus"
+                                    formControlName="status">
+                            </div>
+                            <p class="text-muted small mt-1">Inactive channels won't be visible in selection lists.</p>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="col-12 mt-4">
+                            <div class="d-flex gap-3">
+                                <button type="submit" class="btn btn-primary px-5 rounded-pill"
+                                    [disabled]="channelForm.invalid || saving">
+                                    <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
+                                    {{ isEdit ? 'Update Channel' : 'Save Channel' }}
+                                </button>
+                                <a routerLink="/dashboard/channels" class="btn btn-light px-5 rounded-pill">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
