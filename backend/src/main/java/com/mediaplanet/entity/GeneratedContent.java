@@ -43,4 +43,7 @@ public class GeneratedContent {
     @CreationTimestamp
     @Column(name = "timestamp", nullable = false, updatable = false)
     private LocalDateTime timestamp;
+
+    @OneToMany(mappedBy = "generatedContent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private java.util.List<Transcript> transcripts;
 }

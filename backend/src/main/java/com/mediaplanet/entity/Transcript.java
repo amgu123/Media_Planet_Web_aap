@@ -23,6 +23,7 @@ public class Transcript {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generated_content_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("transcripts")
     private GeneratedContent generatedContent;
 
     @Column(columnDefinition = "TEXT")

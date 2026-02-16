@@ -64,34 +64,111 @@
         </div>
     </div>
 
-    <div class="col-md-6 col-lg-4" *ngFor="let item of contents">
-        <div class="card border-0 shadow-sm h-100 hover-elevate">
-            <div
-                class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3 px-3">
-                <span class="badge rounded-pill" [class.bg-primary-subtle]="item.taskType === 'AD'"
-                    [class.text-primary]="item.taskType === 'AD'" [class.bg-warning-subtle]="item.taskType === 'NEWS'"
-                    [class.text-warning]="item.taskType === 'NEWS'" [class.bg-info-subtle]="item.taskType === 'OCR'"
-                    [class.text-info]="item.taskType === 'OCR'">
-                    {{ item.taskType }}
-                </span>
-                <small class="text-muted">{{ item.timestamp | date:'short' }}</small>
-            </div>
-            <div class="card-body px-3">
-                <div class="d-flex align-items-center mb-3">
-                    <img *ngIf="item.channel.logo" [src]="item.channel.logo" class="rounded-circle me-2"
-                        style="width: 24px; height: 24px; object-fit: cover;">
-                    <span class="fw-bold small">{{ item.channel.channelName }}</span>
-                    <span class="mx-2 text-muted small">|</span>
-                    <span class="text-muted small">{{ item.channel.language?.languageName }}</span>
+    <div class="col-12" *ngFor="let item of contents">
+        <div class="card border-0 shadow-sm hover-elevate overflow-hidden">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- Left Strip - Info -->
+                    <div class="col-lg-3 bg-light p-4 d-flex flex-column">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge rounded-pill" [class.bg-primary-subtle]="item.taskType === 'AD'"
+                                [class.text-primary]="item.taskType === 'AD'"
+                                [class.bg-warning-subtle]="item.taskType === 'NEWS'"
+                                [class.text-warning]="item.taskType === 'NEWS'"
+                                [class.bg-info-subtle]="item.taskType === 'OCR'"
+                                [class.text-info]="item.taskType === 'OCR'">
+                                {{ item.taskType }}
+                            </span>
+                            <span class="ms-auto text-muted smallest-text">Create At : {{ item.timestamp | date:'short'
+                                }}</span>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-3">
+                            <img *ngIf="item.channel.logo" [src]="item.channel.logo" class="rounded-circle me-3"
+                                style="width: 32px; height: 32px; object-fit: cover; border: 1px solid #eee;">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ item.channel.channelName }}</h6>
+                                <span class="text-muted smallest-text">{{ item.channel.language?.languageName }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top">
+                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="text-muted smallest-text">Recording Timestamp:</span>
+                                <span class="fw-medium smallest-text text-truncate ms-2" [title]="item.fileName">{{
+                                    item.fileName || 'N/A' }}</span>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted smallest-text">Recording Date:</span>
+                                <span class="fw-medium smallest-text">{{ (item.dataDate | date) || 'N/A' }}</span>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button *ngIf="item.imageUrl" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-image me-1"></i> View Image
+                                </button>
+                                <button class="btn btn-primary btn-sm" (click)="toggleExpand(item.id)">
+                                    <i class="bi" [class.bi-list-ul]="!isExpanded(item.id)"
+                                        [class.bi-chevron-up]="isExpanded(item.id)"></i>
+                                    {{ isExpanded(item.id) ? 'Hide Transcripts' : 'View Transcripts' }}
+                                    <span class="badge bg-white text-primary ms-1" *ngIf="item.transcripts?.length">{{
+                                        item.transcripts?.length }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Part - Content/Transcripts -->
+                    <div class="col-lg-9 p-4">
+                        <div *ngIf="!isExpanded(item.id)">
+                            <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-chat-left-text me-2"></i>Content
+                                Summary</h6>
+                            <div class="p-4 bg-light rounded text-dark content-box-full">
+                                {{ item.content || 'Transcription data...' }}
+                            </div>
+                        </div>
+
+                        <div *ngIf="isExpanded(item.id)" class="animate__animated animate__fadeIn">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-clock-history me-2"></i>Detailed
+                                    Transcripts</h6>
+                                <div class="input-group input-group-sm" style="width: 250px;">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-search text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0"
+                                        placeholder="Search segments..."
+                                        (input)="onSearchChange(item.id, $any($event.target).value)">
+                                </div>
+                            </div>
+                            <div class="transcript-container rounded border">
+                                <table class="table table-hover table-borderless mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4" style="width: 80px;">Sr. No.</th>
+                                            <th style="width: 150px;">Timestamp</th>
+                                            <th>Transcription Text</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let seg of getFilteredTranscripts(item); let i = index">
+                                            <td class="ps-4 text-muted small">{{ i + 1 }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary-subtle text-secondary fw-semibold">{{
+                                                    seg.timeStamp }}</span>
+                                            </td>
+                                            <td class="text-dark">{{ seg.text }}</td>
+                                        </tr>
+                                        <tr *ngIf="getFilteredTranscripts(item).length === 0">
+                                            <td colspan="3" class="text-center py-4 text-muted">
+                                                <i class="bi bi-search me-2"></i> No matching segments found.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-3 bg-light rounded small content-box">
-                    {{ item.content }}
-                </div>
-            </div>
-            <div class="card-footer bg-transparent border-0 pb-3 px-3" *ngIf="item.imageUrl">
-                <button class="btn btn-outline-primary btn-sm w-100">
-                    <i class="bi bi-image me-1"></i> View Screenshot
-                </button>
             </div>
         </div>
     </div>

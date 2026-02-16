@@ -158,7 +158,7 @@ public class TaskWorker implements Runnable {
         @SuppressWarnings("unchecked")
         Map<String, Object> response = restTemplate.postForObject(apiUrl, payload, Map.class);
 
-        log.info("Channel {}: Received response: {}", channelName, response);
+        log.info("Channel {}: Received response: OK", channelName);
 
         if (response == null || !"batch_complete".equals(response.get("status"))) {
             throw new RuntimeException("API response status was not batch_complete: " + response);
@@ -190,15 +190,18 @@ public class TaskWorker implements Runnable {
 
                 // Save individual transcript segments
                 if (transcriptContent instanceof List) {
-                    List<Map<String, String>> segments = (List<Map<String, String>>) transcriptContent;
-                    for (Map<String, String> segment : segments) {
-                        com.mediaplanet.entity.Transcript transcript = new com.mediaplanet.entity.Transcript();
-                        transcript.setGeneratedContent(savedGc);
-                        transcript.setText(segment.get("text"));
-                        transcript.setTimeStamp(segment.get("time_stamp"));
-                        transcriptRepository.save(transcript);
+                    List<?> list = (List<?>) transcriptContent;
+                    for (Object obj : list) {
+                        if (obj instanceof java.util.Map) {
+                            java.util.Map<String, String> segment = (java.util.Map<String, String>) obj;
+                            com.mediaplanet.entity.Transcript transcript = new com.mediaplanet.entity.Transcript();
+                            transcript.setGeneratedContent(savedGc);
+                            transcript.setText(segment.get("text"));
+                            transcript.setTimeStamp(segment.get("time_stamp"));
+                            transcriptRepository.save(transcript);
+                        }
                     }
-                    log.info("Channel {}: Saved {} segments for file {} in database.", channelName, segments.size(),
+                    log.info("Channel {}: Saved {} segments for file {} in database.", channelName, list.size(),
                             fileName);
                 }
             }

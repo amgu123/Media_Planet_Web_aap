@@ -79,6 +79,13 @@ export interface TaskExecution {
     updateDate?: string;
 }
 
+export interface Transcript {
+    id?: number;
+    text: string;
+    timeStamp: string;
+    createdAt?: string;
+}
+
 export interface GeneratedContent {
     id?: number;
     channel: Channel;
@@ -86,6 +93,9 @@ export interface GeneratedContent {
     content: string;
     imageUrl?: string;
     timestamp: string;
+    fileName?: string;
+    dataDate?: string;
+    transcripts?: Transcript[];
 }
 
 export interface AppConfig {
