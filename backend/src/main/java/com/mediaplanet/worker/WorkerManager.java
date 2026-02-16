@@ -95,7 +95,7 @@ public class WorkerManager {
                 languageName,
                 taskType,
                 taskRepository,
-                taskExecutionService,
+                channelRepository, taskExecutionService,
                 appConfigService,
                 restTemplate);
 
