@@ -2,6 +2,7 @@ package com.mediaplanet.worker;
 
 import com.mediaplanet.entity.Channel;
 import com.mediaplanet.repository.ChannelRepository;
+import com.mediaplanet.repository.GeneratedContentRepository;
 import com.mediaplanet.repository.TaskRepository;
 import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
@@ -25,6 +26,9 @@ public class WorkerManager {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private GeneratedContentRepository generatedContentRepository;
 
     @Autowired
     private TaskExecutionService taskExecutionService;
@@ -87,15 +91,15 @@ public class WorkerManager {
         }
 
         log.info("Starting worker for channel: {} type: {}", channel.getChannelName(), taskType);
-        String languageName = (channel.getLanguage() != null) ? channel.getLanguage().getLanguageName() : "unknown";
 
         TaskWorker worker = new TaskWorker(
                 channel.getId(),
                 channel.getChannelName(),
-                languageName,
                 taskType,
                 taskRepository,
-                channelRepository, taskExecutionService,
+                channelRepository,
+                generatedContentRepository,
+                taskExecutionService,
                 appConfigService,
                 restTemplate);
 

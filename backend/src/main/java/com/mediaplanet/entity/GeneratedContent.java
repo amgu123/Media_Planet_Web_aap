@@ -31,6 +31,15 @@ public class GeneratedContent {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "transcript_json", columnDefinition = "TEXT")
+    private String transcriptJson;
+
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "data_date")
+    private java.time.LocalDate dataDate;
+
     @Column(name = "image_url")
     private String imageUrl;
 

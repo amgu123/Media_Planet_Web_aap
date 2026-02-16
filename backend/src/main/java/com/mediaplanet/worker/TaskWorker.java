@@ -1,8 +1,10 @@
 package com.mediaplanet.worker;
 
 import com.mediaplanet.entity.Channel;
+import com.mediaplanet.entity.GeneratedContent;
 import com.mediaplanet.entity.Task;
 import com.mediaplanet.repository.ChannelRepository;
+import com.mediaplanet.repository.GeneratedContentRepository;
 import com.mediaplanet.repository.TaskRepository;
 import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
@@ -22,13 +24,14 @@ public class TaskWorker implements Runnable {
 
     private final Long channelId;
     private final String channelName;
-    private final String languageName;
     private final String taskType;
     private final TaskRepository taskRepository;
     private final ChannelRepository channelRepository;
+    private final GeneratedContentRepository generatedContentRepository;
     private final TaskExecutionService taskExecutionService;
     private final AppConfigService appConfigService;
     private final RestTemplate restTemplate;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     @Override
     public void run() {
@@ -158,6 +161,37 @@ public class TaskWorker implements Runnable {
 
         if (response == null || !"batch_complete".equals(response.get("status"))) {
             throw new RuntimeException("API response status was not batch_complete: " + response);
+        }
+
+        // Handle Response Results
+        List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+        if (results != null && !results.isEmpty()) {
+            for (Map<String, Object> result : results) {
+                saveTranscript(task, result);
+            }
+        }
+    }
+
+    private void saveTranscript(Task task, Map<String, Object> result) {
+        try {
+            Object transcriptContent = result.get("transcript_content");
+            String fileName = (String) result.get("file");
+
+            if (transcriptContent != null) {
+                String transcriptJson = objectMapper.writeValueAsString(transcriptContent);
+
+                GeneratedContent gc = new GeneratedContent();
+                gc.setChannel(task.getChannel());
+                gc.setTaskType(task.getTaskType());
+                gc.setTranscriptJson(transcriptJson);
+                gc.setFileName(fileName);
+                gc.setDataDate(task.getDataDate());
+
+                generatedContentRepository.save(gc);
+                log.info("Channel {}: Saved transcript for file {} in database.", channelName, fileName);
+            }
+        } catch (Exception e) {
+            log.error("Channel {}: Failed to save transcript: {}", channelName, e.getMessage());
         }
     }
 }
