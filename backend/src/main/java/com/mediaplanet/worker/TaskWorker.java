@@ -33,7 +33,6 @@ public class TaskWorker implements Runnable {
     private final TaskExecutionService taskExecutionService;
     private final AppConfigService appConfigService;
     private final RestTemplate restTemplate;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     @Override
     public void run() {
@@ -180,8 +179,6 @@ public class TaskWorker implements Runnable {
             String fileName = (String) result.get("file");
 
             if (transcriptContent != null) {
-                String transcriptJson = objectMapper.writeValueAsString(transcriptContent);
-
                 GeneratedContent gc = new GeneratedContent();
                 gc.setChannel(task.getChannel());
                 gc.setTaskType(task.getTaskType());
