@@ -53,6 +53,13 @@ public class TaskWorker implements Runnable {
         log.debug("Channel {}: Found {} pending tasks.", channelName, pendingTasks.size());
 
         for (Task task : pendingTasks) {
+            // Check if worker should still be running
+            if (!isWorkerRunning()) {
+                log.info("Channel {}: Stop signal detected. Terminating task processing loop for type {}.", channelName,
+                        taskType);
+                break;
+            }
+
             try {
                 processSingleTask(task);
             } catch (Exception e) {
@@ -61,6 +68,23 @@ public class TaskWorker implements Runnable {
                 taskRepository.save(task);
             }
         }
+    }
+
+    private boolean isWorkerRunning() {
+        return channelRepository.findById(channelId)
+                .map(channel -> {
+                    switch (taskType.toUpperCase()) {
+                        case "AD":
+                            return Boolean.TRUE.equals(channel.getAdWorkerRunning());
+                        case "NEWS":
+                            return Boolean.TRUE.equals(channel.getNewsWorkerRunning());
+                        case "OCR":
+                            return Boolean.TRUE.equals(channel.getOcrWorkerRunning());
+                        default:
+                            return false;
+                    }
+                })
+                .orElse(false);
     }
 
     private void processSingleTask(Task task) {
