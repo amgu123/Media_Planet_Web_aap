@@ -5,6 +5,7 @@ import com.mediaplanet.entity.GeneratedContent;
 import com.mediaplanet.entity.Task;
 import com.mediaplanet.repository.ChannelRepository;
 import com.mediaplanet.repository.GeneratedContentRepository;
+import com.mediaplanet.repository.TranscriptRepository;
 import com.mediaplanet.repository.TaskRepository;
 import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
@@ -28,6 +29,7 @@ public class TaskWorker implements Runnable {
     private final TaskRepository taskRepository;
     private final ChannelRepository channelRepository;
     private final GeneratedContentRepository generatedContentRepository;
+    private final TranscriptRepository transcriptRepository;
     private final TaskExecutionService taskExecutionService;
     private final AppConfigService appConfigService;
     private final RestTemplate restTemplate;
@@ -183,12 +185,25 @@ public class TaskWorker implements Runnable {
                 GeneratedContent gc = new GeneratedContent();
                 gc.setChannel(task.getChannel());
                 gc.setTaskType(task.getTaskType());
-                gc.setTranscriptJson(transcriptJson);
                 gc.setFileName(fileName);
                 gc.setDataDate(task.getDataDate());
 
-                generatedContentRepository.save(gc);
-                log.info("Channel {}: Saved transcript for file {} in database.", channelName, fileName);
+                GeneratedContent savedGc = generatedContentRepository.save(gc);
+                log.info("Channel {}: Saved metadata for file {} in database.", channelName, fileName);
+
+                // Save individual transcript segments
+                if (transcriptContent instanceof List) {
+                    List<Map<String, String>> segments = (List<Map<String, String>>) transcriptContent;
+                    for (Map<String, String> segment : segments) {
+                        com.mediaplanet.entity.Transcript transcript = new com.mediaplanet.entity.Transcript();
+                        transcript.setGeneratedContent(savedGc);
+                        transcript.setText(segment.get("text"));
+                        transcript.setTimeStamp(segment.get("time_stamp"));
+                        transcriptRepository.save(transcript);
+                    }
+                    log.info("Channel {}: Saved {} segments for file {} in database.", channelName, segments.size(),
+                            fileName);
+                }
             }
         } catch (Exception e) {
             log.error("Channel {}: Failed to save transcript: {}", channelName, e.getMessage());

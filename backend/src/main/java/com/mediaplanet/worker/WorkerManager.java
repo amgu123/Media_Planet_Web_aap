@@ -3,6 +3,7 @@ package com.mediaplanet.worker;
 import com.mediaplanet.entity.Channel;
 import com.mediaplanet.repository.ChannelRepository;
 import com.mediaplanet.repository.GeneratedContentRepository;
+import com.mediaplanet.repository.TranscriptRepository;
 import com.mediaplanet.repository.TaskRepository;
 import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
@@ -29,6 +30,9 @@ public class WorkerManager {
 
     @Autowired
     private GeneratedContentRepository generatedContentRepository;
+
+    @Autowired
+    private TranscriptRepository transcriptRepository;
 
     @Autowired
     private TaskExecutionService taskExecutionService;
@@ -99,6 +103,7 @@ public class WorkerManager {
                 taskRepository,
                 channelRepository,
                 generatedContentRepository,
+                transcriptRepository,
                 taskExecutionService,
                 appConfigService,
                 restTemplate);

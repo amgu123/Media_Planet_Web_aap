@@ -10,37 +10,28 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "generated_contents")
+@Table(name = "transcripts")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class GeneratedContent {
+public class Transcript {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "channel_id", nullable = false)
-    private Channel channel;
-
-    @Column(name = "task_type", nullable = false, length = 20)
-    private String taskType; // AD, NEWS, OCR
+    @JoinColumn(name = "generated_content_id", nullable = false)
+    private GeneratedContent generatedContent;
 
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String text;
 
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "data_date")
-    private java.time.LocalDate dataDate;
-
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "time_stamp", length = 50)
+    private String timeStamp;
 
     @CreationTimestamp
-    @Column(name = "timestamp", nullable = false, updatable = false)
-    private LocalDateTime timestamp;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
