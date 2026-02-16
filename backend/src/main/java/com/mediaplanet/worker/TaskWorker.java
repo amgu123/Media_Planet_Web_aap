@@ -1,6 +1,8 @@
 package com.mediaplanet.worker;
 
+import com.mediaplanet.entity.Channel;
 import com.mediaplanet.entity.Task;
+import com.mediaplanet.repository.ChannelRepository;
 import com.mediaplanet.repository.TaskRepository;
 import com.mediaplanet.service.AppConfigService;
 import com.mediaplanet.service.TaskExecutionService;
@@ -23,6 +25,7 @@ public class TaskWorker implements Runnable {
     private final String languageName;
     private final String taskType;
     private final TaskRepository taskRepository;
+    private final ChannelRepository channelRepository;
     private final TaskExecutionService taskExecutionService;
     private final AppConfigService appConfigService;
     private final RestTemplate restTemplate;
@@ -92,9 +95,22 @@ public class TaskWorker implements Runnable {
     }
 
     private void makeApiCall(Task task) {
-        String apiUrl = appConfigService.getByKey("ENG_LANG_API_HOST")
-                .map(config -> config.getConfigValue())
-                .orElseThrow(() -> new RuntimeException("DETECTION_API_URL not configured in app_configs"));
+
+        // get the channel langauge from the channel table
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new RuntimeException("Channel not found"));
+        String languageName = channel.getLanguage().getLanguageName().toLowerCase();
+
+        String apiUrl = "";
+        if (languageName.equals("english")) {
+            apiUrl = appConfigService.getByKey("ENG_LANG_API_HOST")
+                    .map(config -> config.getConfigValue())
+                    .orElseThrow(() -> new RuntimeException("DETECTION_API_URL not configured in app_configs"));
+        } else {
+            apiUrl = appConfigService.getByKey("MULTI_LANG_API_HOST")
+                    .map(config -> config.getConfigValue())
+                    .orElseThrow(() -> new RuntimeException("DETECTION_API_URL not configured in app_configs"));
+        }
 
         // Format dates and times
         String formattedDate = task.getDataDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"));

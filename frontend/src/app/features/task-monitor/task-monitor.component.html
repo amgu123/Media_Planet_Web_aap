@@ -5,119 +5,104 @@
     </div>
 </div>
 
-<div class="row g-4 animate__animated animate__fadeInUp">
-    <div class="col-12" *ngFor="let channel of channels">
-        <div class="card border-0 shadow-sm hover-elevate">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-4">
-                    <div class="avatar-sm bg-light rounded-circle me-3 d-flex align-items-center justify-content-center"
-                        style="width: 50px; height: 50px; overflow: hidden; border: 1px solid #eee;">
+<div class="row g-2 animate__animated animate__fadeInUp">
+    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6" *ngFor="let channel of channels">
+        <div class="card border-0 shadow-sm h-100 service-card">
+            <div class="card-body p-2 d-flex flex-column">
+                <!-- Ultra-Compact Header -->
+                <div class="d-flex align-items-center mb-2">
+                    <div class="avatar-xxs bg-light rounded me-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                        style="width: 24px; height: 24px; overflow: hidden; border: 1px solid #eee;">
                         <img *ngIf="channel.logo" [src]="channel.logo" alt="logo"
                             style="width: 100%; height: 100%; object-fit: cover;">
-                        <span *ngIf="!channel.logo" class="fw-bold text-primary">{{ channel.channelName | slice:0:1 |
+                        <span *ngIf="!channel.logo" class="fw-bold text-primary smallest">{{ channel.channelName |
+                            slice:0:1 |
                             uppercase }}</span>
                     </div>
-                    <div>
-                        <h5 class="mb-0 fw-bold">{{ channel.channelName }}</h5>
-                        <p class="text-muted small mb-0">ID: #{{ channel.id }} | {{ channel.description || 'No
-                            description' }}</p>
+                    <div class="overflow-hidden">
+                        <h6 class="mb-0 fw-bold text-truncate smallest" [title]="channel.channelName">{{
+                            channel.channelName }}</h6>
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    <!-- Ad Detection Service -->
-                    <div class="col-md-4" *ngIf="channel.adDetection">
-                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-semibold">Ad Detection</span>
-                                <span class="badge rounded-pill"
-                                    [class.bg-success]="channel.adWorkerRunning"
-                                    [class.bg-secondary]="!channel.adWorkerRunning">
-                                    {{ channel.adWorkerRunning ? 'RUNNING' : 'STOPPED' }}
-                                </span>
-                            </div>
-                            <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="!channel.adWorkerRunning"
-                                    (click)="startTask(channel, 'AD')" class="btn btn-primary btn-sm flex-fill">
-                                    <i class="bi bi-play-fill me-1"></i> Start
-                                </button>
-                                <button *ngIf="channel.adWorkerRunning"
-                                    (click)="stopTask(channel, 'AD')" class="btn btn-danger btn-sm flex-fill">
-                                    <i class="bi bi-stop-fill me-1"></i> Stop
-                                </button>
-                                <button (click)="viewLogs(channel, 'AD')" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-terminal me-1"></i> Logs
-                                </button>
+                <!-- compact Services Row -->
+                <div class="services-ultra-list flex-grow-1">
+                    <!-- Service Icons/Status in a compact row -->
+                    <div class="d-flex flex-column gap-1">
+                        <!-- Ad Detection -->
+                        <div class="service-ultra-item px-2 py-1 rounded d-flex justify-content-between align-items-center"
+                            *ngIf="channel.adDetection" [class.active]="channel.adWorkerRunning"
+                            [title]="'Ad Detection: ' + (channel.adWorkerRunning ? 'Running' : 'Stopped')">
+                            <span class="smallest-text fw-medium">AD</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="status-dot dot-sm" [class.running]="channel.adWorkerRunning"></span>
+                                <div class="action-btns">
+                                    <button *ngIf="!channel.adWorkerRunning" (click)="startTask(channel, 'AD')"
+                                        class="btn-icon" title="Start"><i
+                                            class="bi bi-play-fill text-primary"></i></button>
+                                    <button *ngIf="channel.adWorkerRunning" (click)="stopTask(channel, 'AD')"
+                                        class="btn-icon" title="Stop"><i
+                                            class="bi bi-stop-fill text-danger"></i></button>
+                                    <button (click)="viewLogs(channel, 'AD')" class="btn-icon" title="Logs"><i
+                                            class="bi bi-terminal text-muted"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- News Detection Service -->
-                    <div class="col-md-4" *ngIf="channel.newsDetection">
-                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-semibold">News Detection</span>
-                                <span class="badge rounded-pill"
-                                    [class.bg-success]="channel.newsWorkerRunning"
-                                    [class.bg-secondary]="!channel.newsWorkerRunning">
-                                    {{ channel.newsWorkerRunning ? 'RUNNING' : 'STOPPED' }}
-                                </span>
-                            </div>
-                            <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="!channel.newsWorkerRunning"
-                                    (click)="startTask(channel, 'NEWS')" class="btn btn-primary btn-sm flex-fill">
-                                    <i class="bi bi-play-fill me-1"></i> Start
-                                </button>
-                                <button *ngIf="channel.newsWorkerRunning"
-                                    (click)="stopTask(channel, 'NEWS')" class="btn btn-danger btn-sm flex-fill">
-                                    <i class="bi bi-stop-fill me-1"></i> Stop
-                                </button>
-                                <button (click)="viewLogs(channel, 'NEWS')" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-terminal me-1"></i> Logs
-                                </button>
+                        <!-- News Detection -->
+                        <div class="service-ultra-item px-2 py-1 rounded d-flex justify-content-between align-items-center"
+                            *ngIf="channel.newsDetection" [class.active]="channel.newsWorkerRunning"
+                            [title]="'News Detection: ' + (channel.newsWorkerRunning ? 'Running' : 'Stopped')">
+                            <span class="smallest-text fw-medium">NEWS</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="status-dot dot-sm" [class.running]="channel.newsWorkerRunning"></span>
+                                <div class="action-btns">
+                                    <button *ngIf="!channel.newsWorkerRunning" (click)="startTask(channel, 'NEWS')"
+                                        class="btn-icon" title="Start"><i
+                                            class="bi bi-play-fill text-primary"></i></button>
+                                    <button *ngIf="channel.newsWorkerRunning" (click)="stopTask(channel, 'NEWS')"
+                                        class="btn-icon" title="Stop"><i
+                                            class="bi bi-stop-fill text-danger"></i></button>
+                                    <button (click)="viewLogs(channel, 'NEWS')" class="btn-icon" title="Logs"><i
+                                            class="bi bi-terminal text-muted"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- OCR Service -->
-                    <div class="col-md-4" *ngIf="channel.ocr">
-                        <div class="p-3 bg-light rounded border border-light-subtle d-flex flex-column h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="fw-semibold">OCR Detection</span>
-                                <span class="badge rounded-pill"
-                                    [class.bg-success]="channel.ocrWorkerRunning"
-                                    [class.bg-secondary]="!channel.ocrWorkerRunning">
-                                    {{ channel.ocrWorkerRunning ? 'RUNNING' : 'STOPPED' }}
-                                </span>
-                            </div>
-                            <div class="mt-auto d-flex gap-2">
-                                <button *ngIf="!channel.ocrWorkerRunning"
-                                    (click)="startTask(channel, 'OCR')" class="btn btn-primary btn-sm flex-fill">
-                                    <i class="bi bi-play-fill me-1"></i> Start
-                                </button>
-                                <button *ngIf="channel.ocrWorkerRunning"
-                                    (click)="stopTask(channel, 'OCR')" class="btn btn-danger btn-sm flex-fill">
-                                    <i class="bi bi-stop-fill me-1"></i> Stop
-                                </button>
-                                <button (click)="viewLogs(channel, 'OCR')" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-terminal me-1"></i> Logs
-                                </button>
+                        <!-- OCR Detection -->
+                        <div class="service-ultra-item px-2 py-1 rounded d-flex justify-content-between align-items-center"
+                            *ngIf="channel.ocr" [class.active]="channel.ocrWorkerRunning"
+                            [title]="'OCR Detection: ' + (channel.ocrWorkerRunning ? 'Running' : 'Stopped')">
+                            <span class="smallest-text fw-medium">OCR</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="status-dot dot-sm" [class.running]="channel.ocrWorkerRunning"></span>
+                                <div class="action-btns">
+                                    <button *ngIf="!channel.ocrWorkerRunning" (click)="startTask(channel, 'OCR')"
+                                        class="btn-icon" title="Start"><i
+                                            class="bi bi-play-fill text-primary"></i></button>
+                                    <button *ngIf="channel.ocrWorkerRunning" (click)="stopTask(channel, 'OCR')"
+                                        class="btn-icon" title="Stop"><i
+                                            class="bi bi-stop-fill text-danger"></i></button>
+                                    <button (click)="viewLogs(channel, 'OCR')" class="btn-icon" title="Logs"><i
+                                            class="bi bi-terminal text-muted"></i></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- No Services Configured -->
-                    <div class="col-12" *ngIf="!channel.adDetection && !channel.newsDetection && !channel.ocr">
-                        <div class="p-4 bg-light rounded border border-dashed text-center">
-                            <span class="text-muted small">No detection services enabled for this channel. <a
-                                    [routerLink]="['/dashboard/channels/edit', channel.id]">Enable them in
-                                    settings.</a></span>
+                        <!-- No Services -->
+                        <div class="text-center py-1 border border-dashed rounded"
+                            *ngIf="!channel.adDetection && !channel.newsDetection && !channel.ocr">
+                            <span class="text-muted smallest-text">No services</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Log Modal -->

@@ -1,32 +1,97 @@
-.hover-elevate {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+.service-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 8px;
+
     &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+        border-color: rgba(0, 0, 0, 0.15) !important;
     }
 }
 
-.badge {
-    font-size: 0.7rem;
-    padding: 0.35em 0.8em;
-}
-
-.extra-small {
+.smallest {
     font-size: 0.75rem;
 }
 
-.border-dashed {
-    border-style: dashed !important;
+.smallest-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.2px;
+}
+
+.service-ultra-item {
+    background-color: #f8f9fa;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+
+    &.active {
+        background-color: rgba(25, 135, 84, 0.08);
+        border-color: rgba(25, 135, 84, 0.15);
+    }
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    display: inline-block;
+
+    &.running {
+        background-color: #198754;
+        box-shadow: 0 0 5px rgba(25, 135, 84, 0.5);
+        animation: pulse-green 2s infinite;
+    }
+}
+
+.dot-sm {
+    width: 6px;
+    height: 6px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    padding: 0 2px;
+    font-size: 0.85rem;
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+
+    &:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    i {
+        display: block;
+    }
+}
+
+@keyframes pulse-green {
+    0% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 4px rgba(25, 135, 84, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+    }
 }
 
 .log-container {
-    height: 400px;
+    max-height: 400px;
     overflow-y: auto;
+    background: #1e1e1e;
     font-family: 'Courier New', Courier, monospace;
-    background-color: #121212;
-    line-height: 1.5;
+    white-space: pre-wrap;
 }
 
-.animate__animated {
-    --animate-duration: 0.5s;
+.action-btns {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }

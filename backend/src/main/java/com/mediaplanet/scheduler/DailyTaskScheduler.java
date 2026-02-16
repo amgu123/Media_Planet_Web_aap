@@ -63,7 +63,7 @@ public class DailyTaskScheduler {
 
     private void generateTasksForType(Channel channel, LocalDate date, String type, List<Task> tasksToSave) {
         log.info("Generating 24 tasks for channel: {} type: {}", channel.getChannelName(), type);
-        for (int hour = 0; hour < 24; hour++) {
+        for (int hour = 9; hour < 18; hour++) {
             String dateTimeStr = String.format("%02d00", hour);
 
             Task task = new Task();
